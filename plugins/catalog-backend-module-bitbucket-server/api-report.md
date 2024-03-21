@@ -10,8 +10,8 @@ import { Entity } from '@backstage/catalog-model';
 import { EntityProvider } from '@backstage/plugin-catalog-node';
 import { EntityProviderConnection } from '@backstage/plugin-catalog-node';
 import { EventParams } from '@backstage/plugin-events-node';
-import { EventSubscriber } from '@backstage/plugin-events-node';
 import { LocationSpec } from '@backstage/plugin-catalog-node';
+import { EventsService } from '@backstage/plugin-events-node';;
 import { LoggerService } from '@backstage/backend-plugin-api';
 import { PluginTaskScheduler } from '@backstage/backend-tasks';
 import { Response as Response_2 } from 'node-fetch';
@@ -67,9 +67,7 @@ export type BitbucketServerDefaultBranch = {
 };
 
 // @public
-export class BitbucketServerEntityProvider
-  implements EntityProvider, EventSubscriber
-{
+export class BitbucketServerEntityProvider implements EntityProvider {
   // (undocumented)
   connect(connection: EntityProviderConnection): Promise<void>;
   // (undocumented)
@@ -77,6 +75,7 @@ export class BitbucketServerEntityProvider
     config: Config,
     options: {
       logger: LoggerService;
+      events?: EventsService;
       parser?: BitbucketServerLocationParser;
       schedule?: TaskRunner;
       scheduler?: PluginTaskScheduler;
@@ -91,9 +90,7 @@ export class BitbucketServerEntityProvider
   onEvent(params: EventParams): Promise<void>;
   onRepoPush(event: BitbucketServerEvents.RefsChangedEvent): Promise<void>;
   // (undocumented)
-  refresh(logger: Logger): Promise<void>;
-  // (undocumented)
-  supportsEventTopics(): string[];
+  refresh(logger: LoggerService): Promise<void>;
 }
 
 // @public (undocumented)
