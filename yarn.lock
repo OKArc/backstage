@@ -5014,7 +5014,9 @@ __metadata:
     "@backstage/config": "workspace:^"
     "@backstage/errors": "workspace:^"
     "@backstage/integration": "workspace:^"
+    "@backstage/plugin-catalog-common": "workspace:^"
     "@backstage/plugin-catalog-node": "workspace:^"
+    "@backstage/plugin-events-backend-test-utils": "workspace:^"
     "@backstage/plugin-events-node": "workspace:^"
     "@types/node-fetch": ^2.5.12
     luxon: ^3.0.0
@@ -5798,7 +5800,6 @@ __metadata:
     "@backstage/plugin-events-backend-test-utils": "workspace:^"
     "@backstage/plugin-events-node": "workspace:^"
     supertest: ^6.1.3
-    winston: ^3.2.1
   languageName: unknown
   linkType: soft
 

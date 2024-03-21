@@ -39,9 +39,11 @@ import {
 } from './BitbucketServerLocationParser';
 import { LoggerService } from '@backstage/backend-plugin-api';
 import { BitbucketServerEvents } from '../lib';
-import { EventParams, EventSubscriber } from '@backstage/plugin-events-node';
+import { EventsService } from '@backstage/plugin-events-node';
 import { CatalogApi } from '@backstage/catalog-client';
 import { TokenManager } from '@backstage/backend-common';
+import { LoggerService } from '@backstage/backend-plugin-api';
+import { LocationSpec } from '@backstage/plugin-catalog-common';
 
 const TOPIC_REPO_REFS_CHANGED = 'bitbucketServer.repo:refs_changed';
 
@@ -53,9 +55,7 @@ const TOPIC_REPO_REFS_CHANGED = 'bitbucketServer.repo:refs_changed';
  *
  * @public
  */
-export class BitbucketServerEntityProvider
-  implements EntityProvider, EventSubscriber
-{
+export class BitbucketServerEntityProvider implements EntityProvider {
   private readonly integration: BitbucketServerIntegration;
   private readonly config: BitbucketServerEntityProviderConfig;
   private readonly parser: BitbucketServerLocationParser;
@@ -63,6 +63,7 @@ export class BitbucketServerEntityProvider
   private readonly scheduleFn: () => Promise<void>;
   private connection?: EntityProviderConnection;
   private readonly catalogApi?: CatalogApi;
+  private readonly events?: EventsService;
   private readonly tokenManager?: TokenManager;
   private eventConfigErrorThrown = false;
   private readonly targetAnnotation: string;
@@ -72,6 +73,7 @@ export class BitbucketServerEntityProvider
     config: Config,
     options: {
       logger: LoggerService;
+      events?: EventsService;
       parser?: BitbucketServerLocationParser;
       schedule?: TaskRunner;
       scheduler?: PluginTaskScheduler;
@@ -112,6 +114,7 @@ export class BitbucketServerEntityProvider
         taskRunner,
         options.parser,
         options.catalogApi,
+        options.events,
         options.tokenManager,
       );
     });
@@ -124,6 +127,7 @@ export class BitbucketServerEntityProvider
     taskRunner: TaskRunner,
     parser?: BitbucketServerLocationParser,
     catalogApi?: CatalogApi,
+    events?: EventsService,
     tokenManager?: TokenManager,
   ) {
     this.integration = integration;
@@ -137,6 +141,7 @@ export class BitbucketServerEntityProvider
     this.tokenManager = tokenManager;
     this.targetAnnotation = `${this.config.host.split(':')[0]}/repo-url`;
     this.defaultBranchAnnotation = 'bitbucket.org/default-branch';
+    this.events = events;
   }
 
   private createScheduleFn(taskRunner: TaskRunner): () => Promise<void> {
@@ -173,6 +178,22 @@ export class BitbucketServerEntityProvider
   async connect(connection: EntityProviderConnection): Promise<void> {
     this.connection = connection;
     await this.scheduleFn();
+
+    if (this.events) {
+      await this.events.subscribe({
+        id: this.getProviderName(),
+        topics: [TOPIC_REPO_REFS_CHANGED],
+        onEvent: async params => {
+          if (params.topic !== TOPIC_REPO_REFS_CHANGED) {
+            return;
+          }
+
+          await this.onRepoPush(
+            params.eventPayload as BitbucketServerEvents.RefsChangedEvent,
+          );
+        },
+      });
+    }
   }
 
   async refresh(logger: LoggerService) {
@@ -417,32 +438,6 @@ export class BitbucketServerEntityProvider
     return result;
   }
 
-  /** {@inheritdoc @backstage/plugin-events-node#EventSubscriber.supportsEventTopics} */
-  supportsEventTopics(): string[] {
-    return [TOPIC_REPO_REFS_CHANGED];
-  }
-
-  /** {@inheritdoc @backstage/plugin-events-node#EventSubscriber.onEvent} */
-  async onEvent(params: EventParams): Promise<void> {
-    if (params.topic === TOPIC_REPO_REFS_CHANGED) {
-      const payload =
-        params.eventPayload as BitbucketServerEvents.RefsChangedEvent;
-
-      if (
-        payload.repository.slug === undefined ||
-        payload.repository.project.key === undefined ||
-        payload.changes === undefined
-      ) {
-        this.logger.error(`Invalid event payload for ${params.topic}.`);
-        return;
-      }
-
-      await this.onRepoPush(
-        params.eventPayload as BitbucketServerEvents.RefsChangedEvent,
-      );
-    }
-  }
-
   /**
    * Finds if there are existing location entities for the repository that was pushed. If there are, it simply refreshes those entities,
    * if not, it discovers any entity that was added and removed in the list of entities
@@ -588,6 +583,14 @@ export class BitbucketServerEntityProvider
       result => result.items,
     ) as Promise<LocationEntity[]>;
   }
+
+  //   private static toLocationSpec(target: string): LocationSpec {
+  //     return {
+  //       type: 'url',
+  //       target: target,
+  //       presence: 'required',
+  //     };
+  //   }
 }
 
 /**
