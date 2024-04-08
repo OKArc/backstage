@@ -18,6 +18,8 @@ import { createBackend } from '@backstage/backend-defaults';
 
 const backend = createBackend();
 
+console.log(import('./test.mjs'));
+
 backend.add(import('@backstage/plugin-auth-backend'));
 backend.add(import('./authModuleGithubProvider'));
 backend.add(import('@backstage/plugin-auth-backend-module-guest-provider'));
