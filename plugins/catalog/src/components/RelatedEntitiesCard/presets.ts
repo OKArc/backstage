@@ -22,6 +22,7 @@ import {
 import { EntityTable } from '@backstage/plugin-catalog-react';
 import { TableColumn } from '@backstage/core-components';
 
+/** @public */
 export const componentEntityColumns: TableColumn<ComponentEntity>[] = [
   EntityTable.columns.createEntityRefColumn({ defaultKind: 'component' }),
   EntityTable.columns.createOwnerColumn(),
@@ -29,11 +30,16 @@ export const componentEntityColumns: TableColumn<ComponentEntity>[] = [
   EntityTable.columns.createSpecLifecycleColumn(),
   EntityTable.columns.createMetadataDescriptionColumn(),
 ];
+
+/** @public */
 export const componentEntityHelpLink: string =
   'https://backstage.io/docs/features/software-catalog/descriptor-format#kind-component';
+
+/** @public */
 export const asComponentEntities = (entities: Entity[]): ComponentEntity[] =>
   entities as ComponentEntity[];
 
+/** @public */
 export const resourceEntityColumns: TableColumn<ResourceEntity>[] = [
   EntityTable.columns.createEntityRefColumn({ defaultKind: 'resource' }),
   EntityTable.columns.createOwnerColumn(),
@@ -41,17 +47,26 @@ export const resourceEntityColumns: TableColumn<ResourceEntity>[] = [
   EntityTable.columns.createSpecLifecycleColumn(),
   EntityTable.columns.createMetadataDescriptionColumn(),
 ];
+
+/** @public */
 export const resourceEntityHelpLink: string =
   'https://backstage.io/docs/features/software-catalog/descriptor-format#kind-resource';
+
+/** @public */
 export const asResourceEntities = (entities: Entity[]): ResourceEntity[] =>
   entities as ResourceEntity[];
 
+/** @public */
 export const systemEntityColumns: TableColumn<SystemEntity>[] = [
   EntityTable.columns.createEntityRefColumn({ defaultKind: 'system' }),
   EntityTable.columns.createOwnerColumn(),
   EntityTable.columns.createMetadataDescriptionColumn(),
 ];
+
+/** @public */
 export const systemEntityHelpLink: string =
   'https://backstage.io/docs/features/software-catalog/descriptor-format#kind-system';
+
+/** @public */
 export const asSystemEntities = (entities: Entity[]): SystemEntity[] =>
   entities as SystemEntity[];
