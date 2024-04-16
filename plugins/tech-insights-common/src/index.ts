@@ -74,7 +74,7 @@ export type FactResponse = {
      * Numbers are split into integers and floating point values.
      * `set` indicates a collection of values
      */
-    type: 'integer' | 'float' | 'string' | 'boolean' | 'datetime' | 'set';
+    type: 'integer' | 'float' | 'string' | 'boolean' | 'datetime' | 'set' | 'object';
 
     /**
      * Description of the individual fact
