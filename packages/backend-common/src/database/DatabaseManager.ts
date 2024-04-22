@@ -269,9 +269,8 @@ export class DatabaseManager implements LegacyRootDatabaseService {
     );
 
     if (client === 'pg') {
-      (
-        baseConnection as Knex.PgConnectionConfig
-      ).application_name ||= `backstage_plugin_${pluginId}`;
+      (baseConnection as Knex.PgConnectionConfig).application_name ||=
+        `backstage_plugin_${pluginId}`;
     }
 
     return {

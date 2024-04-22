@@ -98,9 +98,7 @@ export function ToolSearchResultListItem(props: ToolSearchResultListItemProps) {
           }
         />
         <Box>
-          {result.tags?.map((tag: string) => (
-            <Chip label={tag} size="small" />
-          ))}
+          {result.tags?.map((tag: string) => <Chip label={tag} size="small" />)}
         </Box>
       </div>
     </>

@@ -196,9 +196,12 @@ ApiReportGenerator.generateReviewFileContent =
     );
 
     try {
-      const prettier = require('prettier') as typeof import('prettier');
+      const prettier =
+        require('@prettier/sync') as typeof import('@prettier/sync');
+      require('prettier');
 
-      const config = prettier.resolveConfig.sync(cliPaths.targetRoot) ?? {};
+      const packageDir = (collector as any).extractorConfig.projectFolder;
+      const config = prettier.resolveConfig(packageDir) ?? {};
       return prettier.format(content, {
         ...config,
         parser: 'markdown',

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-export type UnboxPromise<T extends Promise<any>> = T extends Promise<infer U>
-  ? U
-  : never;
+export type UnboxPromise<T extends Promise<any>> =
+  T extends Promise<infer U> ? U : never;
 
 export type UnboxReturnedPromise<T extends (...args: any) => Promise<any>> =
   UnboxPromise<ReturnType<T>>;
