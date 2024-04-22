@@ -40,12 +40,14 @@ import useDebounce from 'react-use/esm/useDebounce';
 
 import { SearchContextProvider, useSearch } from '../../context';
 
-function withContext<T>(Component: ComponentType<T>) {
+function withContext<T>(
+  Component: ComponentType<T>,
+): ForwardRefExoticComponent<T> {
   return forwardRef<HTMLDivElement, T>((props, ref) => (
     <SearchContextProvider inheritParentContextIfAvailable>
       <Component {...props} ref={ref} />
     </SearchContextProvider>
-  ));
+  )) as ForwardRefExoticComponent<T>;
 }
 
 /**
@@ -198,7 +200,7 @@ export const SearchBarBase: ForwardRefExoticComponent<SearchBarBaseProps> =
         />
       );
     }),
-  );
+  ) as ForwardRefExoticComponent<SearchBarBaseProps>;
 
 /**
  * Props for {@link SearchBar}.
@@ -247,5 +249,5 @@ export const SearchBar: ForwardRefExoticComponent<SearchBarProps> = withContext(
         />
       </AnalyticsContext>
     );
-  }),
+  }) as ForwardRefExoticComponent<SearchBarProps>,
 );
