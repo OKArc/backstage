@@ -9,9 +9,8 @@ import { Config } from '@backstage/config';
 import { Entity } from '@backstage/catalog-model';
 import { EntityProvider } from '@backstage/plugin-catalog-node';
 import { EntityProviderConnection } from '@backstage/plugin-catalog-node';
-import { EventParams } from '@backstage/plugin-events-node';
-import { LocationSpec } from '@backstage/plugin-catalog-node';
-import { EventsService } from '@backstage/plugin-events-node';;
+import { EventsService } from '@backstage/plugin-events-node';
+import { LocationSpec } from '@backstage/plugin-catalog-common';
 import { LoggerService } from '@backstage/backend-plugin-api';
 import { PluginTaskScheduler } from '@backstage/backend-tasks';
 import { Response as Response_2 } from 'node-fetch';
@@ -85,10 +84,6 @@ export class BitbucketServerEntityProvider implements EntityProvider {
   ): BitbucketServerEntityProvider[];
   // (undocumented)
   getProviderName(): string;
-  // (undocumented)
-  refresh(logger: LoggerService): Promise<void>;
-  onEvent(params: EventParams): Promise<void>;
-  onRepoPush(event: BitbucketServerEvents.RefsChangedEvent): Promise<void>;
   // (undocumented)
   refresh(logger: LoggerService): Promise<void>;
 }

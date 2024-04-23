@@ -42,7 +42,6 @@ import { BitbucketServerEvents } from '../lib';
 import { EventsService } from '@backstage/plugin-events-node';
 import { CatalogApi } from '@backstage/catalog-client';
 import { TokenManager } from '@backstage/backend-common';
-import { LoggerService } from '@backstage/backend-plugin-api';
 
 const TOPIC_REPO_REFS_CHANGED = 'bitbucketServer.repo:refs_changed';
 
