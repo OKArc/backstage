@@ -141,7 +141,11 @@ export interface TaskContext {
         },
   ): Promise<void>;
 
+  serializeWorkspace?(options: { path: string }): Promise<void>;
+
   getWorkspaceName(): Promise<string>;
+
+  getWorkspace?(options: { taskId: string }): Promise<Buffer | undefined>;
 
   getInitiatorCredentials(): Promise<BackstageCredentials>;
 }
