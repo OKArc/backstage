@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Backstage Authors
+ * Copyright 2024 The Backstage Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,9 @@
  */
 
 /**
- * Core API used by Backstage backend apps.
+ * The backend plugin for the continuous-integration plugin.
  *
  * @packageDocumentation
  */
 
-export * from './config';
-export * from './http';
-export * from './logging';
-export * from './wiring';
-export * from './services/implementations';
-export { DependencyGraph } from './lib/DependencyGraph';
+export { continuousIntegrationPlugin as default } from './plugin';
