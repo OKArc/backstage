@@ -88,8 +88,15 @@ export const CatalogTable = (props: CatalogTableProps) => {
   } = props;
   const { isStarredEntity, toggleStarredEntity } = useStarredEntities();
   const entityListContext = useEntityList();
-  const { loading, error, entities, filters, pageInfo, totalItems } =
-    entityListContext;
+  const {
+    loading,
+    error,
+    entities,
+    requestedFilters,
+    filters,
+    pageInfo,
+    totalItems,
+  } = entityListContext;
   const enablePagination = !!pageInfo;
 
   const tableColumns = useMemo(
@@ -168,15 +175,16 @@ export const CatalogTable = (props: CatalogTableProps) => {
     },
   ];
 
-  const currentKind = filters.kind?.value || '';
-  const currentType = filters.type?.value || '';
+  const titleFilters = loading ? requestedFilters : filters;
+  const currentKind = titleFilters.kind?.value || '';
+  const currentType = titleFilters.type?.value || '';
   // TODO(timbonicus): remove the title from the CatalogTable once using EntitySearchBar
-  const titlePreamble = capitalize(filters.user?.value ?? 'all');
+  const titlePreamble = capitalize(titleFilters.user?.value ?? 'all');
   const titleDisplay = [titlePreamble, currentType, pluralize(currentKind)]
     .filter(s => s)
     .join(' ');
 
-  const title = `${titleDisplay} (${totalItems})`;
+  const title = loading ? titleDisplay : `${titleDisplay} (${totalItems})`;
   const actions = props.actions || defaultActions;
   const options = {
     actionsColumnIndex: -1,
