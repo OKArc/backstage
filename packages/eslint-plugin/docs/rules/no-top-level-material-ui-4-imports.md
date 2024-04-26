@@ -41,3 +41,50 @@ import {
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 ```
+
+## --fix known issues
+
+This rule provides automatic fixes for the imports, but it has some known issues:
+
+### Non Props types import
+
+the fix will handle correctly 3 groups of imports:
+
+- Any import from related to styles (i.e `makeStyles`, `styled`, `WithStyles`) will be auto fixed to the `@material-ui/core/styles` import.
+- Any import with `Props` suffix will be auto fixed to actual component for example `DialogProps` will be imported from `@material-ui/core/Dialog`.
+- Any other import will be considered as a component import and will be auto fixed to the actual component import.
+
+this means that some types imports withouth `Props` suffix will be wrongly auto fixed to the component import, for example this fix will be wrong:
+
+```diff
+-   import { Alert, Color } from '@material-ui/lab';
++   import Alert from '@material-ui/lab/Alert';
++   import Color  from '@material-ui/lab/Color'; // this import is wrong
+```
+
+the correct import should look like this:
+
+```diff
+-   import { Alert, Color } from '@material-ui/lab';
++   import Alert, {Color} from '@material-ui/lab/Alert';
+```
+
+because `Color` is a type coming from the Alert component.
+
+### No default export available
+
+Some components do not have a default export, for example `@material-ui/pickers/DateTimePicker` does not have a default export, so the fix will not work for these cases.
+
+the fix will be wrong for this import:
+
+```diff
+- import { DateTimePicker } from '@material-ui/pickers';
++ import DateTimePicker from '@material-ui/pickers/DateTimePicker'; // this default import does not exist
+```
+
+the correct import should look like this:
+
+```diff
+- import { DateTimePicker } from '@material-ui/pickers';
++ import { DateTimePicker } from '@material-ui/pickers/DateTimePicker'; // this is the correct import
+```
