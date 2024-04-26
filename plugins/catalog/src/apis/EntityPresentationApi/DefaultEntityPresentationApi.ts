@@ -298,10 +298,35 @@ export class DefaultEntityPresentationApi implements EntityPresentationApi {
           };
         });
 
-    return {
+    const entityRefPresentation: EntityRefPresentation = {
       snapshot: initialSnapshot,
       update$: observable,
+      get promise() {
+        return new Promise<EntityRefPresentationSnapshot[]>(resolve => {
+          if (!observable) {
+            resolve([initialSnapshot]);
+          } else {
+            const res: EntityRefPresentationSnapshot[] = [];
+            const subscription = observable.subscribe({
+              next: snapshot => {
+                res.push(snapshot);
+              },
+              error: () => {
+                initialSnapshot = {
+                  primaryTitle: entityRef,
+                  entityRef: entityRef,
+                };
+              },
+              complete() {
+                subscription.unsubscribe();
+                resolve(res);
+              },
+            });
+          }
+        });
+      },
     };
+    return entityRefPresentation;
   }
 
   #getEntityForInitialRender(entityOrRef: Entity | string): {

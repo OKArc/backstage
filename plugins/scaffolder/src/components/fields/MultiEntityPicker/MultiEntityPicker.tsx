@@ -25,7 +25,8 @@ import {
 import { useApi } from '@backstage/core-plugin-api';
 import {
   catalogApiRef,
-  humanizeEntityRef,
+  entityPresentationApiRef,
+  EntityDisplayName,
 } from '@backstage/plugin-catalog-react';
 import TextField from '@material-ui/core/TextField';
 import FormControl from '@material-ui/core/FormControl';
@@ -64,32 +65,16 @@ export const MultiEntityPicker = (props: MultiEntityPickerProps) => {
     uiSchema['ui:options']?.defaultNamespace || undefined;
 
   const catalogApi = useApi(catalogApiRef);
-
+  const entityPresentationApi = useApi(entityPresentationApiRef);
   const { value: entities, loading } = useAsync(async () => {
     const { items } = await catalogApi.getEntities(
       catalogFilter ? { filter: catalogFilter } : undefined,
     );
+
     return items;
   });
   const allowArbitraryValues =
     uiSchema['ui:options']?.allowArbitraryValues ?? true;
-
-  const getLabel = useCallback(
-    (ref: string) => {
-      try {
-        return humanizeEntityRef(
-          parseEntityRef(ref, { defaultKind, defaultNamespace }),
-          {
-            defaultKind,
-            defaultNamespace,
-          },
-        );
-      } catch (err) {
-        return ref;
-      }
-    },
-    [defaultKind, defaultNamespace],
-  );
 
   const onSelect = useCallback(
     (_: any, refs: (string | Entity)[], reason: AutocompleteChangeReason) => {
@@ -97,7 +82,12 @@ export const MultiEntityPicker = (props: MultiEntityPickerProps) => {
         .map(ref => {
           if (typeof ref !== 'string') {
             // if ref does not exist: pass 'undefined' to trigger validation for required value
-            return ref ? stringifyEntityRef(ref as Entity) : undefined;
+            return ref
+              ? entityPresentationApi.forEntity(ref, {
+                  defaultKind,
+                  defaultNamespace,
+                }).snapshot.entityRef
+              : undefined;
           }
           if (reason === 'blur' || reason === 'create-option') {
             // Add in default namespace, etc.
@@ -126,7 +116,14 @@ export const MultiEntityPicker = (props: MultiEntityPickerProps) => {
 
       onChange(values);
     },
-    [onChange, formData, defaultKind, defaultNamespace, allowArbitraryValues],
+    [
+      onChange,
+      formData,
+      defaultKind,
+      defaultNamespace,
+      allowArbitraryValues,
+      entityPresentationApi,
+    ],
   );
 
   useEffect(() => {
@@ -146,21 +143,18 @@ export const MultiEntityPicker = (props: MultiEntityPickerProps) => {
         filterSelectedOptions
         disabled={entities?.length === 1}
         id={idSchema?.$id}
-        value={
-          // Since free solo can be enabled, attempt to parse as a full entity ref first, then fall
-          //  back to the given value.
-          entities?.filter(
-            e => formData && formData.includes(stringifyEntityRef(e)),
-          ) ?? (allowArbitraryValues && formData ? formData.map(getLabel) : [])
-        }
         loading={loading}
         onChange={onSelect}
         options={entities || []}
+        renderOption={option => <EntityDisplayName entityRef={option} />}
         getOptionLabel={option =>
           // option can be a string due to freeSolo.
           typeof option === 'string'
             ? option
-            : humanizeEntityRef(option, { defaultKind, defaultNamespace })!
+            : entityPresentationApi.forEntity(option, {
+                defaultKind,
+                defaultNamespace,
+              }).snapshot.entityRef!
         }
         autoSelect
         freeSolo={allowArbitraryValues}
@@ -170,7 +164,10 @@ export const MultiEntityPicker = (props: MultiEntityPickerProps) => {
             label={title}
             margin="dense"
             helperText={description}
-            FormHelperTextProps={{ margin: 'dense', style: { marginLeft: 0 } }}
+            FormHelperTextProps={{
+              margin: 'dense',
+              style: { marginLeft: 0 },
+            }}
             variant="outlined"
             required={required}
             InputProps={params.InputProps}
