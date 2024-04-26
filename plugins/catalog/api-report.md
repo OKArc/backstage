@@ -33,6 +33,7 @@ import { SearchResultListItemExtensionProps } from '@backstage/plugin-search-rea
 import { StarredEntitiesApi } from '@backstage/plugin-catalog-react';
 import { StorageApi } from '@backstage/core-plugin-api';
 import { StyleRules } from '@material-ui/core/styles/withStyles';
+import { SystemEntity } from '@backstage/catalog-model';
 import { TableColumn } from '@backstage/core-components';
 import { TableOptions } from '@backstage/core-components';
 import { TableProps } from '@backstage/core-components';
@@ -68,6 +69,15 @@ export interface AboutFieldProps {
   // (undocumented)
   value?: string;
 }
+
+// @public (undocumented)
+export const asComponentEntities: (entities: Entity[]) => ComponentEntity[];
+
+// @public (undocumented)
+export const asResourceEntities: (entities: Entity[]) => ResourceEntity[];
+
+// @public (undocumented)
+export const asSystemEntities: (entities: Entity[]) => SystemEntity[];
 
 // @public (undocumented)
 export type BackstageOverrides = Overrides & {
@@ -223,6 +233,12 @@ export interface CatalogTableRow {
 
 // @public (undocumented)
 export type ColumnBreakpoints = Record<Breakpoint, number>;
+
+// @public (undocumented)
+export const componentEntityColumns: TableColumn<ComponentEntity>[];
+
+// @public (undocumented)
+export const componentEntityHelpLink: string;
 
 // @public
 export interface DefaultCatalogPageProps {
@@ -616,10 +632,22 @@ export type RelatedEntitiesCardProps<T extends Entity> = {
 };
 
 // @public (undocumented)
+export const resourceEntityColumns: TableColumn<ResourceEntity>[];
+
+// @public (undocumented)
+export const resourceEntityHelpLink: string;
+
+// @public (undocumented)
 export type SystemDiagramCardClassKey =
   | 'domainNode'
   | 'systemNode'
   | 'componentNode'
   | 'apiNode'
   | 'resourceNode';
+
+// @public (undocumented)
+export const systemEntityColumns: TableColumn<SystemEntity>[];
+
+// @public (undocumented)
+export const systemEntityHelpLink: string;
 ```
