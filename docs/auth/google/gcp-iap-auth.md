@@ -27,6 +27,11 @@ auth:
     gcp-iap:
       audience: '/projects/<project number>/global/backendServices/<backend service id>'
       jwtHeader: x-custom-header # Optional: Only if you are using a custom header for the IAP JWT
+      signIn:
+        resolvers:
+          - resolver: emailMatchingUserEntityProfileEmail
+          - resolver: emailLocalPartMatchingUserEntityName
+          - resolver: emailMatchingUserEntityAnnotation
 ```
 
 The full `audience` value can be obtained by visiting your [Identity-Aware Proxy Google Cloud console](https://console.cloud.google.com/security/iap), selecting your project, finding your Backend Service to proxy, clicking the 3 vertical dots then "Get JWT Audience Code", and copying from the resulting popup, which will look similar to the following:
@@ -35,6 +40,18 @@ The full `audience` value can be obtained by visiting your [Identity-Aware Proxy
 
 This config section must be in place for the provider to load at all. Now let's
 add the provider itself.
+
+### Resolvers
+
+This provider includes several resolvers out of the box that you can use:
+
+- `emailMatchingUserEntityProfileEmail`: Matches the email address from the auth provider with the User entity that has a matching `spec.profile.email`. If no match is found it will throw a `NotFoundError`.
+- `emailLocalPartMatchingUserEntityName`: Matches the [local part](https://en.wikipedia.org/wiki/Email_address#Local-part) of the email address from the auth provider with the User entity that has a matching `name`. If no match is found it will throw a `NotFoundError`.
+- `emailMatchingUserEntityAnnotation`: Matches the email address from the auth provider with the User entity where the value of the `google.com/email` annotation matches. If no match is found it will throw a `NotFoundError`.
+
+> Note: The resolvers will be tried in order, but will only be skipped if they throw a `NotFoundError`.
+
+If these resolvers do not fit your needs you can build a custom resolver, this is covered in the [Building Custom Resolvers](../identity-resolver.md#building-custom-resolvers) section of the Sign-in Identities and Resolvers documentation.
 
 ## Backend Changes
 
@@ -93,6 +110,27 @@ export default async function createPlugin(
 Now the backend is ready to serve auth requests on the
 `/api/auth/gcp-iap/refresh` endpoint. All that's left is to update the frontend
 sign-in mechanism to poll that endpoint through the IAP, on the user's behalf.
+
+### New Backend System
+
+There is a module for this provider that works with the new backend system.
+
+First you'll want to run this command to add the module:
+
+```sh
+ yarn --cwd packages/backend add @backstage/plugin-auth-backend-module-gcp-iap-provider
+```
+
+Then you will need to add this to your backend:
+
+```ts title="packages/backend/src/index.ts"
+const backend = createBackend();
+
+backend.add(import('@backstage/plugin-auth-backend'));
+/* highlight-add-start */
+backend.add(import('@backstage/plugin-auth-backend-module-gcp-iap-provider'));
+/* highlight-add-end */
+```
 
 ## Frontend Changes
 
